@@ -55,19 +55,43 @@ mine says `kernel_tegra210-p3448-0002-p3449-0000-b00.dtb`
     sudo dtc -I dtb -O dts -o /tmp/base.dts /boot/dtb/kernel_tegra210-p3448-0002-p3449-0000-b00.dtb
 6. your looking for stuff related to this `sdhci@700b0400`
 
-2. Compile the `.dts` into `.dtbo`:
+7. Create a new .dts file ` limo-sdmmc3-overlay.dts`
+8. Compile the `.dts` into `.dtbo`:
    ```bash
-   dtc -O dtb -o my-sdcard.dtbo -@ my-sdcard.dts
-3. Copy `my-sdcard.dtbo` to `/boot/` on the Jetson.
+   sudo dtc -@ -I dts -O dtb -o /boot/limo-sdmmc3.dtbo limo-sdmmc3-overlay.dts
 
-4. Apply the overlay:
+9. Merge Overlay with Base DTB
+
+    Merge the overlay into a standalone DTB so U-Boot loads the combined version directly:
     ```bash
-    sudo /opt/nvidia/jetson-io/config-by-hardware.py -n "My SD-Card Overlay"
+    sudo fdtoverlay   -i /boot/dtb/kernel_tegra210-p3448-0002-p3449-0000-b00.dtb -o /boot/dtb/kernel_tegra210-p3448-0002-p3449-0000-b00-merged.dtb  /boot/limo-sdmmc3.dtbo
 
 
-5. Reboot, then verify:
+10. Point extlinux.conf to the Merged DTB
+    Update U-Boot’s configuration to load your merged DTB instead of the default:
     ```bash
-    ls /proc/device-tree/…-sdcard-detect
+    sudo vim /boot/extlinux/extlinux.conf
+
+
+11. Within the primary label, set the FDT directive:
+    ```conf
+    TIMEOUT 30
+    DEFAULT primary
+
+    MENU TITLE L4T boot options
+
+    LABEL primary
+        MENU LABEL primary kernel
+        LINUX /boot/Image
+        INITRD /boot/initrd
+        FDT /boot/dtb/kernel_tegra210-p3448-0002-p3449-0000-b00-merged.dtb
+        APPEND ${cbootargs} quiet root=/dev/mmcblk0p1 rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0 sdhci_tegra.en_boot_part_access=1  root=/dev/mmcblk0p1 rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0 sdhci_tegra.en_boot_part_access=1 nv-auto-config
+
+12. Reboot & Verify
+    After rebooting, confirm everything is active:
+    ```bash
+    cat /proc/device-tree/sdhci@700b0400/status
+    # Expected: okay
 
 ## 3. Configure boot priority (TODO)
 - Boot priority hasn’t been customized yet; Jetson will default to the standard SD‑card rootfs.

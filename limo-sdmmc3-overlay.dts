@@ -1,0 +1,13 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment0 {
+        target-path = "/sdhci@700b0400";
+        __overlay__ {
+            status = "okay";
+            bus-width = <4>;
+            broken-cd;
+        };
+    };
+};
