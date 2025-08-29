@@ -37,12 +37,24 @@ Inside the nano's case, the nano module is mounted on a carrier board. This carr
 
 Since were not using the original agilex image, we wont have access to the peripherals like the sd card reader.
 
-Since the custom carrier board doesn’t auto-detect the SD card by default, wel need to create and apply a device-tree overlay.
+Since the custom carrier board doesn’t auto-detect the SD card by default, we will need to create and apply a device-tree overlay.
 
 ###  Steps:
 
-1. Use NVIDIA’s Jetson-IO or manual `.dts` method to define the overlay
-   - Include `overlay-name`, `jetson-header-name`, `compatible`, and `fragment` entries :contentReference[oaicite:2]{index=2}.
+1. Connect the limo to a network either wifi or ethernet.
+2. SSH in from the host machine
+3. make sure device tree compiler exists on the nano
+    ```bash
+        sudo apt-get update && sudo apt-get install -y device-tree-compiler
+4. check the dtb folder for what DTB you are using. 
+mine says `kernel_tegra210-p3448-0002-p3449-0000-b00.dtb`
+    ```bash
+        ls /boot/dtb/
+5. Decompile the DTB so you can search through it
+    ```bash
+    sudo dtc -I dtb -O dts -o /tmp/base.dts /boot/dtb/kernel_tegra210-p3448-0002-p3449-0000-b00.dtb
+6. your looking for stuff related to this `sdhci@700b0400`
+
 2. Compile the `.dts` into `.dtbo`:
    ```bash
    dtc -O dtb -o my-sdcard.dtbo -@ my-sdcard.dts
