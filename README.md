@@ -100,26 +100,6 @@ mine says `kernel_tegra210-p3448-0002-p3449-0000-b00.dtb`
 
 ## 4. Set Up Container Storage on the SD Card
 
-- Create a partition on the SD card (if not already configured) to store Docker/containers.
 
-- Mount it (e.g., `/mnt/containers`) in your flash image.
-
-- Configure Docker storage to use that mount:
-    ```json
-    {
-  "data-root": "/mnt/containers/docker"
-    }
-- Restart Docker so container persists on sd card
 
 ## 5. Install ROS2 Eloquent
-
-1. Add ROS2 Eloquent repositories and keys on Jetson Nano (Ubuntu 18.04).
-
-2. Install ros-eloquent-desktop or desired ROS2 components.
-
-3. Initialize dependencies:
-    ```bash
-    sudo apt update && sudo apt install curl gnupg2 lsb-release
-4. Follow ROS2 installation guide for Eloquent on Bionic.
-
-5. Optionally, use a Docker container (e.g., `osrf/ros:eloquent-desktop`) and mount your ROS2 workspace in, with container storage pointed to the SD‑card partition.
